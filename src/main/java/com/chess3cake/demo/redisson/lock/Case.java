@@ -15,41 +15,48 @@ import java.util.UUID;
 public class Case {
 
     public static void main(String[] args) {
-        String lockName = generateLockName();
-        String monitorId = generateMonitorId();
+        //we use resource-id as lock-name, user-id as monitor-id
+        //if the lock try lock successfully, the current user can use the resource
+        //if the lock failed to try lock, the resource is being used by other user
+
+        String resourceId = getResourceId();
+
+        String currentUserId = getCurrentUserId();
+
         Config config = new Config();
         DemoRedissonClient redisson = DemoRedissonClient.create(config);
 
-        RedissonMonitorLock lock = redisson.getMonitorLock(lockName, monitorId);
+        RedissonMonitorLock lock = redisson.getMonitorLock(resourceId, currentUserId);
         if (lock.tryLock()) {
             try {
                 //locked by current monitor id
+
+                // current user get the resource
 
             } finally {
                 lock.unlock();
             }
         } else {
             //locked by another monitor id
-            String otherMonitorId = lock.getHeldMonitorId();
-            Object otherMonitor = getMonitor(otherMonitorId);
+            String otherUserId = lock.getHeldMonitorId();
+            Object otherUser = getUser(otherUserId);
+            //other user get the resource
             //do something..
-
-
         }
 
     }
 
 
-    static Object getMonitor(String monitorId) {
+    static Object getUser(String monitorId) {
         //return by monitor id
         return new Object();
     }
 
-    static String generateLockName() {
+    static String getResourceId() {
         return UUID.randomUUID().toString();
     }
 
-    static String generateMonitorId() {
+    static String getCurrentUserId() {
         return UUID.randomUUID().toString();
     }
 
