@@ -21,16 +21,17 @@ public class Case {
         DemoRedissonClient redisson = DemoRedissonClient.create(config);
 
         RedissonMonitorLock lock = redisson.getMonitorLock(lockName, monitorId);
-        if (lock.tryLock()){
+        if (lock.tryLock()) {
             try {
                 //locked by current monitor id
 
-            }finally {
+            } finally {
                 lock.unlock();
             }
-        }else{
+        } else {
             //locked by another monitor id
             String otherMonitorId = lock.getHeldMonitorId();
+            Object otherMonitor = getMonitor(otherMonitorId);
             //do something..
 
 
@@ -39,11 +40,16 @@ public class Case {
     }
 
 
-    public static String generateLockName(){
+    static Object getMonitor(String monitorId) {
+        //return by monitor id
+        return new Object();
+    }
+
+    static String generateLockName() {
         return UUID.randomUUID().toString();
     }
 
-    public static String generateMonitorId(){
+    static String generateMonitorId() {
         return UUID.randomUUID().toString();
     }
 
